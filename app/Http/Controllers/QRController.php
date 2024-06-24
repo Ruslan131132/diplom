@@ -46,9 +46,13 @@ class QRController extends Controller
                 'user_id' => null
             ]);
             if ($request->ajax()) {
+                Artisan::call('door:open', ['--option' => 0]);
+
                 return self::error('Нет данных по QR-коду', 400);
             } else {
                 $error = 'ОШИБКА ПРИ СКАНИРОВАНИИ';
+                Artisan::call('door:open', ['--option' => 0]);
+
                 return view('qr.error', compact('error'));
             }
         }
@@ -61,6 +65,7 @@ class QRController extends Controller
                 'ip' => $request->ip() ?? null,
                 'user_id' => auth('sanctum')->user()->id ?? null
             ]);
+            Artisan::call('door:open', ['--option' => 0]);
 
             return self::error('Нет данных по QR-коду', 400);
         }
@@ -72,20 +77,20 @@ class QRController extends Controller
                 'ip' => $request->ip() ?? null,
                 'user_id' => auth('sanctum')->user()->id ?? null
             ]);
+            Artisan::call('door:open', ['--option' => 0]);
 
             return self::error('В доступе отказано', 403);
         }
 
         if (!$qr->active) {
+            Artisan::call('door:open', ['--option' => 0]);
             return self::error('QR-код уже был отсканирован', 400);
         }
 
 
 // TODO - добавить при необходимости - Storage::disk('public')->delete($qr->path);
         $qr->update(['active' => 0]);
-//        Artisan::call('door:open', [
-//            '--number' => 1,
-//        ]);
+        Artisan::call('door:open', ['--option' => 1]);
 
         Log::create([
             'text' => 'Получен доступ к двери',
